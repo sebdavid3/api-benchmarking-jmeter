@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <!-- ================================================================ -->
-    <!-- API Benchmarking - Test Plan Maestro                             -->
-    <!-- Parametrizado para probar cualquier stack cambiando solo apiPort -->
-    <!-- Uso: jmeter -n -t api-benchmark.jmx -JapiPort=5001 -JstackName=python -Jscenario=low -->
-    <!-- ================================================================ -->
+    
+    
+    
+    
+    
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="API Benchmarking - POST /api/orders" enabled="true">
       <stringProp name="TestPlan.comments">Benchmark comparativo de stacks: Python/Flask, Node/NestJS, Java/SpringBoot, Go/stdlib</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
@@ -42,9 +42,9 @@
       </elementProp>
     </TestPlan>
     <hashTree>
-      <!-- ============================================================ -->
-      <!-- HTTP Request Defaults (Global)                                -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
         <stringProp name="HTTPSampler.domain">${apiHost}</stringProp>
         <stringProp name="HTTPSampler.port">${apiPort}</stringProp>
@@ -54,11 +54,11 @@
         <boolProp name="HTTPSampler.concurrentDwn">false</boolProp>
         <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
       </ConfigTestElement>
-      <hashTree/>
+      <hashTree />
 
-      <!-- ============================================================ -->
-      <!-- HTTP Header Manager (Global)                                  -->
-      <!-- ============================================================ -->
+      
+      
+      
       <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
@@ -67,11 +67,11 @@
           </elementProp>
         </collectionProp>
       </HeaderManager>
-      <hashTree/>
+      <hashTree />
 
-      <!-- ============================================================ -->
-      <!-- ESCENARIO 1: Baja Carga (10 usuarios, 60s)                    -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Baja Carga - 10 usuarios" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -92,37 +92,36 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;customerId&quot;: &quot;C123&quot;,&#xd;
-  &quot;items&quot;: [&#xd;
-    { &quot;productId&quot;: &quot;P1&quot;, &quot;quantity&quot;: 2, &quot;price&quot;: 10.5 },&#xd;
-    { &quot;productId&quot;: &quot;P2&quot;, &quot;quantity&quot;: 1, &quot;price&quot;: 5.0 }&#xd;
-  ]&#xd;
+                <stringProp name="Argument.value">{
+  "customerId": "C123",
+  "items": [
+    { "productId": "P1", "quantity": 2, "price": 10.5 },
+    { "productId": "P2", "quantity": 1, "price": 5.0 }
+  ]
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.domain" />
+          <stringProp name="HTTPSampler.port" />
+          <stringProp name="HTTPSampler.protocol" />
+          <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">${apiPath}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re" />
+          <stringProp name="HTTPSampler.connect_timeout" />
+          <stringProp name="HTTPSampler.response_timeout" />
         </HTTPSamplerProxy>
-        <hashTree/>
-      </hashTree>
+        <hashTree><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Status 200" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="expected_code">200</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_code</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">8</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Body Contains orderId" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="contains_orderId">"orderId"</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_data</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">2</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /></hashTree></hashTree>
 
-      <!-- ============================================================ -->
-      <!-- ESCENARIO 2: Media Carga (50 usuarios, 120s)                  -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Media Carga - 50 usuarios" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -143,37 +142,36 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;customerId&quot;: &quot;C123&quot;,&#xd;
-  &quot;items&quot;: [&#xd;
-    { &quot;productId&quot;: &quot;P1&quot;, &quot;quantity&quot;: 2, &quot;price&quot;: 10.5 },&#xd;
-    { &quot;productId&quot;: &quot;P2&quot;, &quot;quantity&quot;: 1, &quot;price&quot;: 5.0 }&#xd;
-  ]&#xd;
+                <stringProp name="Argument.value">{
+  "customerId": "C123",
+  "items": [
+    { "productId": "P1", "quantity": 2, "price": 10.5 },
+    { "productId": "P2", "quantity": 1, "price": 5.0 }
+  ]
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.domain" />
+          <stringProp name="HTTPSampler.port" />
+          <stringProp name="HTTPSampler.protocol" />
+          <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">${apiPath}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re" />
+          <stringProp name="HTTPSampler.connect_timeout" />
+          <stringProp name="HTTPSampler.response_timeout" />
         </HTTPSamplerProxy>
-        <hashTree/>
-      </hashTree>
+        <hashTree><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Status 200" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="expected_code">200</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_code</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">8</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Body Contains orderId" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="contains_orderId">"orderId"</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_data</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">2</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /></hashTree></hashTree>
 
-      <!-- ============================================================ -->
-      <!-- ESCENARIO 3: Alta Carga (100 usuarios, 180s)                 -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Alta Carga - 100 usuarios" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -194,37 +192,36 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;customerId&quot;: &quot;C123&quot;,&#xd;
-  &quot;items&quot;: [&#xd;
-    { &quot;productId&quot;: &quot;P1&quot;, &quot;quantity&quot;: 2, &quot;price&quot;: 10.5 },&#xd;
-    { &quot;productId&quot;: &quot;P2&quot;, &quot;quantity&quot;: 1, &quot;price&quot;: 5.0 }&#xd;
-  ]&#xd;
+                <stringProp name="Argument.value">{
+  "customerId": "C123",
+  "items": [
+    { "productId": "P1", "quantity": 2, "price": 10.5 },
+    { "productId": "P2", "quantity": 1, "price": 5.0 }
+  ]
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.domain" />
+          <stringProp name="HTTPSampler.port" />
+          <stringProp name="HTTPSampler.protocol" />
+          <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">${apiPath}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re" />
+          <stringProp name="HTTPSampler.connect_timeout" />
+          <stringProp name="HTTPSampler.response_timeout" />
         </HTTPSamplerProxy>
-        <hashTree/>
-      </hashTree>
+        <hashTree><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Status 200" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="expected_code">200</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_code</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">8</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Body Contains orderId" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="contains_orderId">"orderId"</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_data</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">2</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /></hashTree></hashTree>
 
-      <!-- ============================================================ -->
-      <!-- ESCENARIO 4: Estrés (150 usuarios, 240s)                     -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Estrés - 150 usuarios" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -245,37 +242,36 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;customerId&quot;: &quot;C123&quot;,&#xd;
-  &quot;items&quot;: [&#xd;
-    { &quot;productId&quot;: &quot;P1&quot;, &quot;quantity&quot;: 2, &quot;price&quot;: 10.5 },&#xd;
-    { &quot;productId&quot;: &quot;P2&quot;, &quot;quantity&quot;: 1, &quot;price&quot;: 5.0 }&#xd;
-  ]&#xd;
+                <stringProp name="Argument.value">{
+  "customerId": "C123",
+  "items": [
+    { "productId": "P1", "quantity": 2, "price": 10.5 },
+    { "productId": "P2", "quantity": 1, "price": 5.0 }
+  ]
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.domain" />
+          <stringProp name="HTTPSampler.port" />
+          <stringProp name="HTTPSampler.protocol" />
+          <stringProp name="HTTPSampler.contentEncoding" />
           <stringProp name="HTTPSampler.path">${apiPath}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re" />
+          <stringProp name="HTTPSampler.connect_timeout" />
+          <stringProp name="HTTPSampler.response_timeout" />
         </HTTPSamplerProxy>
-        <hashTree/>
-      </hashTree>
+        <hashTree><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Status 200" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="expected_code">200</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_code</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">8</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /><ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Body Contains orderId" enabled="true"><collectionProp name="Asserion.test_strings"><stringProp name="contains_orderId">"orderId"</stringProp></collectionProp><stringProp name="Assertion.test_field">Assertion.response_data</stringProp><boolProp name="Assertion.assume_success">false</boolProp><intProp name="Assertion.test_type">2</intProp><stringProp name="Assertion.custom_message" /></ResponseAssertion><hashTree /></hashTree></hashTree>
 
-      <!-- ============================================================ -->
-      <!-- LISTENERS (para generación de reportes)                      -->
-      <!-- ============================================================ -->
+      
+      
+      
       <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
@@ -310,9 +306,9 @@
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename" />
       </ResultCollector>
-      <hashTree/>
+      <hashTree />
 
       <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -348,9 +344,9 @@
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename" />
       </ResultCollector>
-      <hashTree/>
+      <hashTree />
     </hashTree>
   </hashTree>
 </jmeterTestPlan>

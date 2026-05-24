@@ -15,6 +15,10 @@ async function bootstrap() {
     disableErrorMessages: false,
   }));
 
+  app.getHttpAdapter().get('/health', (_req: any, res: any) => {
+    res.status(200).send('OK');
+  });
+
   await app.listen(5002, '0.0.0.0');
   logger.log('Server listening on port 5002');
 }
