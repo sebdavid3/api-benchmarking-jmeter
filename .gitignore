@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+
+# Node.js
+node_modules/
+dist/
+*.js.map
+
+# Java
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+.gradle/
+build/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+pgdata_*/
+dbdata/
+*.log
+
+# JMeter
+results/
+*.jtl
+*.csv
+report/
+
+# Environment
+.env
+.env.local
+*.env.local
+
+# OS
+Thumbs.db
