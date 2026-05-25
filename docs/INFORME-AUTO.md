@@ -12,8 +12,8 @@
 |-------|----------|----------|--------------------|---------|
 | Flask (Python) | 17,1 | 32 | 563,3 | 0,00% |
 | Go (stdlib) | 4,5 | 11 | 2111,4 | 0,00% |
-| NestJS (Node) | N/A | N/A | N/A | N/A |
-| Spring Boot (Java) | N/A | N/A | N/A | N/A |
+| NestJS (Node) | 9,5 | 17 | 1032,0 | 0,00% |
+| Spring Boot (Java) | 4,1 | 11 | 2320,9 | 0,00% |
 
 ### Media carga (50 usuarios)
 
@@ -21,8 +21,8 @@
 |-------|----------|----------|--------------------|---------|
 | Flask (Python) | 86,3 | 146 | 566,3 | 0,00% |
 | Go (stdlib) | 21,3 | 35 | 2274,8 | 0,00% |
-| NestJS (Node) | N/A | N/A | N/A | N/A |
-| Spring Boot (Java) | N/A | N/A | N/A | N/A |
+| NestJS (Node) | 48,5 | 71 | 1005,3 | 0,00% |
+| Spring Boot (Java) | 14,3 | 29 | 3398,7 | 0,00% |
 
 ### Alta carga (100 usuarios)
 
@@ -30,8 +30,8 @@
 |-------|----------|----------|--------------------|---------|
 | Flask (Python) | 150,4 | 249 | 646,4 | 0,00% |
 | Go (stdlib) | 40,6 | 78 | 2384,7 | 0,00% |
-| NestJS (Node) | N/A | N/A | N/A | N/A |
-| Spring Boot (Java) | N/A | N/A | N/A | N/A |
+| NestJS (Node) | 87,0 | 119 | 1118,0 | 0,00% |
+| Spring Boot (Java) | 32,1 | 72 | 3011,6 | 0,00% |
 
 ### Estrés (150 usuarios)
 
@@ -39,8 +39,8 @@
 |-------|----------|----------|--------------------|---------|
 | Flask (Python) | 292,9 | 508 | 496,3 | 0,00% |
 | Go (stdlib) | 39,7 | 52 | 3624,6 | 0,00% |
-| NestJS (Node) | N/A | N/A | N/A | N/A |
-| Spring Boot (Java) | N/A | N/A | N/A | N/A |
+| NestJS (Node) | 144,2 | 184 | 1007,9 | 0,00% |
+| Spring Boot (Java) | 55,1 | 131 | 0,0 | 0,22% |
 
 ## 2. Consumo del Sistema (CPU/RAM)
 

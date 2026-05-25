@@ -1,0 +1,12 @@
+--- snapshot 1 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+882192bcfbad   api-python   2.31%     114.5MiB / 7.56GiB   1.48%     26.1kB / 15.2kB   36.3MB / 901kB   6
+8464503b022d   db-python    2.82%     76.54MiB / 7.56GiB   0.99%     26kB / 19.9kB     29.4MB / 442kB   28
+--- snapshot 2 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+882192bcfbad   api-python   0.01%     114.5MiB / 7.56GiB   1.48%     26.1kB / 15.2kB   36.3MB / 901kB   6
+8464503b022d   db-python    0.03%     74.09MiB / 7.56GiB   0.96%     26kB / 19.9kB     29.4MB / 442kB   26
+--- snapshot 3 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O        PIDS
+882192bcfbad   api-python   0.02%     114.5MiB / 7.56GiB   1.48%     26.1kB / 15.2kB   36.3MB / 901kB   6
+8464503b022d   db-python    0.02%     74.09MiB / 7.56GiB   0.96%     26kB / 19.9kB     29.4MB / 442kB   26

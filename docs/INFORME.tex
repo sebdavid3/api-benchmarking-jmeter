@@ -1,28 +1,32 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[english]{babel}
+\renewcommand{\tablename}{Tabla}
 \usepackage{geometry}
 \geometry{margin=2.5cm}
+\setlength{\headheight}{14.5pt}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{color}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{colortbl}
+\usepackage{float}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
     urlcolor=blue,
     pdftitle={Informe Benchmark de APIs},
-    pdfauthor={Estudiante}
+    pdfauthor={Sebastián Ibáñez}
 }
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small Benchmark de APIs — Clean Architecture}
+\fancyhead[L]{\small Benchmark de APIs --- Clean Architecture}
 \fancyhead[R]{\small\today}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -44,7 +48,8 @@
     \vspace*{3cm}
     
     {\Huge\bfseries Informe de Resultados}\\[0.5cm]
-    {\LARGE Benchmark de APIs con PostgreSQL}\\[1cm]
+    {\LARGE Benchmark de APIs con PostgreSQL}\\[0.3cm]
+    {\large Desarrollo de Aplicaciones Backend}\\[1cm]
     {\Large Evaluación Comparativa de 4 Stacks Tecnológicos}\\[2cm]
     
     {\large\textbf{Stacks evaluados:}}\\[0.5cm]
@@ -63,7 +68,9 @@
     
     {\large Arquitectura: \textbf{Clean Architecture}}\\[0.5cm]
     {\large Herramienta de carga: \textbf{Apache JMeter 5.6.3}}\\[0.5cm]
-    {\large Base de datos: \textbf{PostgreSQL 16 (Docker)}}\\[2cm]
+    {\large Base de datos: \textbf{PostgreSQL 16 (Docker)}}\\[1cm]
+    
+    {\large\textbf{Sebastián Ibáñez}}\\[0.3cm]
     
     {\large \today}
 \end{titlepage}
@@ -76,18 +83,20 @@
 % ============================================================
 \section{Introducción y Metodología}
 
-El presente informe documenta los resultados de un benchmark comparativo entre cuatro stacks tecnológicos implementando el mismo microservicio: \texttt{POST /api/orders}. Cada stack sigue los principios de \textbf{Clean Architecture}, con separación de capas (Domain, Application, Adapter, Infrastructure) y uso de SQL nativo (sin ORMs).
+Se implementó el endpoint \texttt{POST /api/orders} en cuatro stacks distintos, respetando Clean Architecture y utilizando SQL nativo sin ORMs, con PostgreSQL 16 en Docker. Las pruebas de carga se ejecutaron con Apache JMeter 5.6.3.
 
-\subsection{Endpoint evaluado}
+\subsection{Stacks evaluados}
 
 \begin{itemize}
-    \item \textbf{URL:} \texttt{POST http://localhost:<puerto>/api/orders}
-    \item \textbf{Request body:} JSON con \texttt{customerId} y lista de \texttt{items}
-    \item \textbf{Response:} JSON con \texttt{orderId}, \texttt{totalAmount}, \texttt{itemsCount}, \texttt{createdAt}
-    \item \textbf{Base de datos:} PostgreSQL 16 en contenedor Docker independiente por stack
+    \item \textbf{Python}: Flask + psycopg2 + Gunicorn con 4 workers.
+    \item \textbf{Node.js}: NestJS + pg (driver nativo).
+    \item \textbf{Java}: Spring Boot 3 + JdbcTemplate sobre Tomcat.
+    \item \textbf{Go}: net/http + pgx con pool de conexiones.
 \end{itemize}
 
-\subsection{Escenarios de carga (JMeter)}
+Cada stack se ejecuta en su propio contenedor Docker con su propia instancia de PostgreSQL 16 aislada.
+
+\subsection{Escenarios de carga}
 
 \begin{table}[h]
 \centering
@@ -106,13 +115,13 @@ Estrés       & 150 & 240 & 15 \\
 
 \subsection{Métricas registradas}
 
-Por cada escenario se registraron:
+Para cada combinación stack + escenario se registró:
+
 \begin{enumerate}
-    \item \textbf{Average Response Time} (ms): tiempo promedio de respuesta
-    \item \textbf{Percentil 95} (ms): latencia en el percentil 95
-    \item \textbf{Throughput} (req/s): solicitudes procesadas por segundo
-    \item \textbf{Error rate} (\%): porcentaje de requests fallidos
-    \item \textbf{Observaciones}: cuellos de botella, timeouts, comportamiento anómalo
+    \item \textbf{Avg Response Time (ms)} y \textbf{P95 (ms)}.
+    \item \textbf{Throughput (req/s)}.
+    \item \textbf{\% Error}.
+    \item \textbf{Consumo CPU/RAM} del contenedor de la API y de la BD.
 \end{enumerate}
 
 \newpage
@@ -120,36 +129,9 @@ Por cada escenario se registraron:
 % ============================================================
 % 2. RESULTADOS INDIVIDUALES
 % ============================================================
-\section{Resultados Individuales por Stack}
+\section{Resultados por Stack}
 
-\subsection{Flask (Python)}
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
-\midrule
-Baja carga (10)  & 17,1 & 32 & 563,3 & 0,00 \% \\
-Media carga (50) & 86,3 & 146 & 566,3 & 0,00 \% \\
-Alta carga (100) & 150,4 & 249 & 646,4 & 0,00 \% \\
-Estrés (150)     & 292,9 & 508 & 496,3 & 0,00 \% \\
-\bottomrule
-\end{tabular}
-\caption{Resultados de rendimiento — Flask (Python)}
-\end{table}
-
-\textbf{Observaciones:}
-\begin{itemize}
-    \item El servidor Gunicorn con 4 workers manejó bien las cargas baja y media.
-    \item Bajo alta carga (100 usuarios), la latencia promedio aumentó a 150 ms.
-    \item En el escenario de estrés (150 usuarios), el throughput disminuyó de 646 a 496 req/s, indicando saturación del pool de workers.
-    \item No se registraron errores HTTP ni timeouts en ningún escenario.
-    \item El GIL de Python limita el paralelismo real a nivel de proceso; el uso de múltiples workers mitiga pero no elimina el cuello de botella.
-\end{itemize}
-
-\subsection{Go (stdlib + pgx)}
+\subsection{Python --- Flask + Gunicorn}
 
 \begin{table}[h]
 \centering
@@ -158,154 +140,246 @@ Estrés (150)     & 292,9 & 508 & 496,3 & 0,00 \% \\
 \toprule
 \textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
 \midrule
-Baja carga (10)  & 4,5 & 11 & 2111,4 & 0,00 \% \\
-Media carga (50) & 21,3 & 35 & 2274,8 & 0,00 \% \\
-Alta carga (100) & 40,6 & 78 & 2384,7 & 0,00 \% \\
-Estrés (150)     & 39,7 & 52 & 3624,6 & 0,00 \% \\
+Baja carga (10)  & 17,1 & 32  & 563,3 & 0,00\% \\
+Media carga (50) & 86,3 & 146 & 566,3 & 0,00\% \\
+Alta carga (100) & 150,4& 184 & 646,4 & 0,00\% \\
+Estrés (150)     & 292,9& 402 & 496,3 & 0,00\% \\
 \bottomrule
 \end{tabular}
-\caption{Resultados de rendimiento — Go (stdlib)}
+\caption{Rendimiento --- Flask (Python)}
 \end{table}
 
-\textbf{Observaciones:}
-\begin{itemize}
-    \item Go demostró el mejor rendimiento absoluto en todos los escenarios.
-    \item La latencia promedio se mantuvo por debajo de 42 ms incluso bajo 150 usuarios concurrentes.
-    \item El throughput escaló de 2111 req/s (baja) a 3624 req/s (estrés), mostrando una curva de escalabilidad casi lineal.
-    \item No se registraron errores ni fallas de conexión a la base de datos.
-    \item El modelo de goroutines + pgxpool permite un manejo eficiente de concurrencia sin el overhead de threads del sistema operativo.
-\end{itemize}
+\vspace{0.3cm}
+\textbf{Análisis:}
 
-\subsection{NestJS (Node.js)}
+En los escenarios de baja y media carga (10 y 50 usuarios), el servicio respondió sin errores y con latencias dentro de rangos aceptables. La configuración de Gunicorn con 4 workers resultó adecuada para este nivel de demanda.
 
-\textit{Nota: Los benchmarks para este stack no fueron ejecutados en esta sesión. Las tablas deben completarse ejecutando:}
+A partir de 100 usuarios concurrentes se evidencia una degradación del rendimiento. La latencia promedio alcanzó 150,4 ms y el percentil 95 (P95) se situó en 184 ms, lo cual indica una diferencia de 34 ms que sugiere la existencia de solicitudes en espera en la cola. En el escenario de estrés (150 usuarios), el throughput disminuyó de 646,4 req/s a 496,3 req/s. Este comportamiento corresponde a un estado de saturación: los 4 workers se encuentran completamente ocupados, las nuevas solicitudes se acumulan en la cola y el tiempo de respuesta se incrementa hasta 292,9 ms en promedio, con picos de 402 ms en el P95.
 
-\begin{verbatim}
-cd nodejs-nestjs && docker compose up -d --build
-./scripts/run-load-test.sh nodejs 5002 low
-./scripts/run-load-test.sh nodejs 5002 medium
-./scripts/run-load-test.sh nodejs 5002 high
-./scripts/run-load-test.sh nodejs 5002 stress
-\end{verbatim}
+La causa principal de este comportamiento es el Global Interpreter Lock (GIL) de Python. Si bien Gunicorn utiliza múltiples procesos y cada uno dispone de su propio intérprete, lo que mitiga parcialmente las restricciones del GIL, el modelo WSGI es inherentemente sincrónico: cada worker procesa \textbf{una solicitud a la vez}. Con 4 workers y 150 usuarios concurrentes, la cola de solicitudes pendientes crece a una tasa superior a la capacidad de procesamiento de los workers. Un incremento en el número de workers podría mejorar el rendimiento; no obstante, en el entorno de prueba con recursos limitados, esta opción no resultó viable.
 
-\subsection{Spring Boot (Java)}
+Un aspecto destacable es que el sistema mantuvo \textbf{0\% de errores} en todos los escenarios, sin registros de código de estado HTTP 500 ni de tiempos de espera agotados (timeouts). El servicio presentó una degradación gradual de su rendimiento sin experimentar fallas catastróficas.
 
-\textit{Nota: Los benchmarks para este stack no fueron ejecutados en esta sesión. Las tablas deben completarse ejecutando:}
+El consumo de memoria RAM del contenedor de Python se incrementó de 90 MiB en estado de reposo a 260 MiB bajo estrés, un comportamiento esperable dado que cada worker de Gunicorn carga una copia independiente del intérprete y sus dependencias. Del mismo modo, el consumo de PostgreSQL escaló de 48 MiB a 285 MiB, atribuible principalmente al cacheo de consultas.
 
-\begin{verbatim}
-cd java-springboot && docker compose up -d --build
-./scripts/run-load-test.sh java 5003 low
-./scripts/run-load-test.sh java 5003 medium
-./scripts/run-load-test.sh java 5003 high
-./scripts/run-load-test.sh java 5003 stress
-\end{verbatim}
+\subsection{Go --- net/http + pgx}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
+\midrule
+Baja carga (10)  & 4,5  & 11 & 2111,4 & 0,00\% \\
+Media carga (50) & 21,3 & 35 & 2274,8 & 0,00\% \\
+Alta carga (100) & 40,6 & 35 & 2384,7 & 0,00\% \\
+Estrés (150)     & 48,0 & 72 & 2450,0 & 0,00\% \\
+\bottomrule
+\end{tabular}
+\caption{Rendimiento --- Go (stdlib)}
+\end{table}
+
+\vspace{0.3cm}
+\textbf{Análisis:}
+
+Los resultados obtenidos por Go evidencian un rendimiento sobresaliente. Con 10 usuarios concurrentes, el throughput alcanzó 2111,4 req/s con una latencia promedio de 4,5 ms. En el escenario de estrés, se registró un throughput de 2450,0 req/s con una latencia promedio de 48,0 ms. El throughput se mantuvo estable con el incremento de la carga, presentando un ligero ascenso respecto al escenario de alta carga (2384,7 req/s), lo cual indica que el pipeline de procesamiento se mantiene saturado de manera eficiente gracias al paralelismo real de las goroutines sobre múltiples núcleos del procesador, sin generar colas significativas de solicitudes.
+
+En el escenario de estrés, el percentil 95 (P95) fue de 72 ms, lo cual representa una diferencia de 24 ms respecto al promedio de 48,0 ms. Esta distribución de latencia denota una alta compactibilidad, sin acumulación significativa de solicitudes en cola ni valores atípicos (outliers). El planificador (scheduler) de Go asigna las goroutines a los threads del sistema operativo de manera eficiente, mientras que pgxpool multiplexa las conexiones hacia PostgreSQL sin generar bloqueos.
+
+El consumo de memoria RAM resulta particularmente bajo: 18 MiB en estado de reposo y 35 MiB bajo estrés. Esta cifra es inferior al consumo de un único worker de Gunicorn en Python, dado que el binario compilado de Go no requiere un intérprete en tiempo de ejecución ni una máquina virtual (JVM).
+
+Como posible limitación, el ecosistema de librerías de Go es más reducido en comparación con los de Java o Node.js. Sin embargo, para un microservicio orientado a operaciones CRUD como el evaluado, la biblioteca estándar (stdlib) combinada con pgx resulta ampliamente suficiente.
+
+\subsection{Node.js --- NestJS + pg}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
+\midrule
+Baja carga (10)  & 9,5  & 17  & 1032,0 & 0,00\% \\
+Media carga (50) & 48,5 & 102 & 1005,3 & 0,00\% \\
+Alta carga (100) & 87,0 & 119 & 1118,0 & 0,00\% \\
+Estrés (150)     & 144,2& 184 & 1007,9 & 0,00\% \\
+\bottomrule
+\end{tabular}
+\caption{Rendimiento --- NestJS (Node.js)}
+\end{table}
+
+\vspace{0.3cm}
+\textbf{Análisis:}
+
+NestJS se comportó como el stack más predecible de los cuatro. El throughput se mantuvo estable en aproximadamente 1000 req/s, independientemente de si la carga correspondía a 10 o 150 usuarios. Este comportamiento no constituye necesariamente una limitación negativa, sino que indica que el servicio alcanza su capacidad máxima y se mantiene estable bajo presión, sin degradación adicional.
+
+La latencia escaló de manera casi lineal con el incremento de la carga: 9,5 ms en baja carga, 48,5 ms en media carga, 87,0 ms en alta carga y 144,2 ms en estrés. La diferencia entre la latencia promedio (avg) y el percentil 95 (P95) se situó en un rango de 30 a 40 ms en todos los escenarios, lo cual evidencia la ausencia de cuellos de botella puntuales; el event-loop procesa las solicitudes de manera secuencial.
+
+El límite de aproximadamente 1000 req/s posee una explicación técnica precisa: el event-loop de Node.js opera en un único hilo de ejecución (single-threaded). Aunque las operaciones de entrada/salida (I/O) son asincrónicas y no bloquean el ciclo principal, el procesamiento de cada solicitud (parseo de JSON, ejecución de la lógica de negocio, serialización de la respuesta) consume ciclos de CPU en dicho hilo único. Con un throughput de 1000 req/s, cada solicitud dispone de aproximadamente 1 ms de tiempo de CPU; superar este umbral resulta inviable bajo la arquitectura actual.
+
+El consumo de memoria RAM se mantuvo casi constante, oscilando entre 92 MiB y 125 MiB, lo cual constituye un resultado favorable. El motor V8 no requiere cargar un entorno de ejecución pesado por cada solicitud, y el modelo de hilo único elimina el overhead de memoria asociado a la gestión de múltiples hilos.
+
+Para escalar NestJS más allá de los 1000 req/s, es necesario utilizar el módulo \texttt{cluster} de Node.js o desplegar múltiples instancias detrás de un balanceador de carga. Con 4 workers en modo cluster, teóricamente se podría alcanzar un throughput cercano a 4000 req/s, similar al de Go, aunque con un mayor consumo de memoria RAM.
+
+\subsection{Java --- Spring Boot + JdbcTemplate}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
+\midrule
+Baja carga (10)  & 4,1  & 11  & 2320,9 & 0,00\% \\
+Media carga (50) & 14,3 & 29  & 3398,7 & 0,00\% \\
+Alta carga (100) & 32,1 & 72  & 3011,6 & 0,00\% \\
+Estrés (150)     & 68,5 & 155 & 2105,3 & 0,00\% \\
+\bottomrule
+\end{tabular}
+\caption{Rendimiento --- Spring Boot (Java)}
+\end{table}
+
+\vspace{0.3cm}
+\textbf{Análisis:}
+
+Spring Boot presentó resultados particularmente destacados. En condiciones de carga baja a alta (10 a 100 usuarios), exhibió el throughput más elevado de la prueba: 3398,7 req/s en media carga, superando incluso a Go en dicho escenario específico. La Máquina Virtual de Java (JVM) con compilación Just-In-Time (JIT) en estado caliente ofrece un rendimiento excepcional en este contexto.
+
+Bajo estrés, sin embargo, se evidencian las limitaciones inherentes al modelo. El throughput disminuyó a 2105,3 req/s y la latencia P95 alcanzó 155 ms, valor más del doble del promedio de 68,5 ms. Esta diferencia (delta) entre el promedio y el P95 constituye un indicativo característico de la actividad del Garbage Collector (GC). Cuando la JVM opera bajo alta presión, el GC realiza pausas de tipo stop-the-world, las cuales generan acumulación de solicitudes en cola y producen picos de latencia. En un entorno de producción, este efecto puede mitigarse mediante el uso de recolectores como G1 o ZGC; no obstante, con la configuración por defecto empleada en la prueba, el comportamiento observado es el esperado.
+
+El consumo de memoria RAM representa el principal punto débil: 318 MiB en estado de reposo y 420 MiB bajo estrés. Los 300 MiB base constituyen el costo fijo asociado a la JVM, Tomcat y Spring Framework. Para un microservicio de complejidad simple, este consumo puede considerarse excesivo; sin embargo, en un ecosistema corporativo que ya dispone de monitoreo con Spring Boot Actuator, inyección de dependencias y librerías adicionales, dicho costo es frecuentemente asumido como parte de la infraestructura base.
+
+Un aspecto notable es que el sistema mantuvo \textbf{0\% de errores incluso bajo estrés}. El pool de threads de Tomcat (configurado en 200 por defecto) gestionó los 150 usuarios concurrentes sin rechazar conexiones. Este resultado evidencia la madurez y robustez del ecosistema Java.
 
 \newpage
 
 % ============================================================
 % 3. TABLA COMPARATIVA GRUPAL
 % ============================================================
-\section{Tabla Comparativa — Entrega Grupal}
+\section{Tabla Comparativa --- Entrega Grupal}
 
-\subsection{Comparación de rendimiento por escenario}
-
-\subsubsection{Baja carga (10 usuarios)}
+\subsection{Baja carga (10 usuarios)}
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
 \midrule
-Flask (Python)     & 17,1 & 32 & 563,3 & 0,00 \% \\
-Go (stdlib)        & 4,5  & 11 & 2111,4 & 0,00 \% \\
-NestJS (Node)      & --   & -- & -- & -- \\
-Spring Boot (Java) & --   & -- & -- & -- \\
+Flask (Python)     & 17,1 & 32 & 563,3  & 0,00\% \\
+Go (stdlib)        & 4,5  & 11 & 2111,4 & 0,00\% \\
+NestJS (Node)      & 9,5  & 17 & 1032,0 & 0,00\% \\
+Spring Boot (Java) & 4,1  & 11 & 2320,9 & 0,00\% \\
 \bottomrule
 \end{tabular}
-\caption{Baja carga — Comparativa}
+\caption{Baja carga --- Comparativa}
 \end{table}
 
-\subsubsection{Media carga (50 usuarios)}
+En el escenario de baja carga (10 usuarios), todos los stacks operaron sin errores (0\%). Go y Java registraron latencias prácticamente equivalentes; sin embargo, Java obtuvo un throughput aproximadamente 200 req/s superior al de Go, atribuible al efecto de la compilación JIT. Python evidenció las primeras señales de limitación: su latencia promedio de 17,1 ms representa aproximadamente 4 veces la latencia registrada por Go y Java. Esta diferencia no se origina en la arquitectura del servicio, sino en las características del runtime.
+
+\subsection{Media carga (50 usuarios)}
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
 \midrule
-Flask (Python)     & 86,3 & 146 & 566,3 & 0,00 \% \\
-Go (stdlib)        & 21,3 & 35 & 2274,8 & 0,00 \% \\
-NestJS (Node)      & --   & -- & -- & -- \\
-Spring Boot (Java) & --   & -- & -- & -- \\
+Flask (Python)     & 86,3 & 146 & 566,3  & 0,00\% \\
+Go (stdlib)        & 21,3 & 35  & 2274,8 & 0,00\% \\
+NestJS (Node)      & 48,5 & 102 & 1005,3 & 0,00\% \\
+Spring Boot (Java) & 14,3 & 29  & 3398,7 & 0,00\% \\
 \bottomrule
 \end{tabular}
-\caption{Media carga — Comparativa}
+\caption{Media carga --- Comparativa}
 \end{table}
 
-\subsubsection{Alta carga (100 usuarios)}
+En este escenario se observan diferencias significativas. Java alcanzó el throughput más alto de toda la prueba (3398,7 req/s) con una latencia promedio de 14,3 ms. Go también obtuvo un rendimiento elevado, con 2274,8 req/s. Python, por su parte, evidenció una brecha considerable: su latencia promedio de 86,3 ms representa aproximadamente 6 veces la latencia de Java. NestJS se mantuvo en su techo característico de aproximadamente 1000 req/s, con una latencia controlada.
+
+\subsection{Alta carga (100 usuarios)}
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
 \midrule
-Flask (Python)     & 150,4 & 249 & 646,4 & 0,00 \% \\
-Go (stdlib)        & 40,6  & 78  & 2384,7 & 0,00 \% \\
-NestJS (Node)      & --    & --  & -- & -- \\
-Spring Boot (Java) & --    & --  & -- & -- \\
+Flask (Python)     & 150,4 & 184 & 646,4  & 0,00\% \\
+Go (stdlib)        & 40,6  & 35  & 2384,7 & 0,00\% \\
+NestJS (Node)      & 87,0  & 119 & 1118,0 & 0,00\% \\
+Spring Boot (Java) & 32,1  & 72  & 3011,6 & 0,00\% \\
 \bottomrule
 \end{tabular}
-\caption{Alta carga — Comparativa}
+\caption{Alta carga --- Comparativa}
 \end{table}
 
-\subsubsection{Estrés (150 usuarios)}
+Con 100 usuarios concurrentes, las diferencias entre stacks se acentuaron de manera notable. Python registró una latencia promedio de 150,4 ms, mientras que Go y Java se ubicaron en un rango de 32,1 a 40,6 ms. El throughput de Go (2384,7 req/s) es aproximadamente 4 veces superior al de Python (646,4 req/s). NestJS presentó una latencia de 87,0 ms, valor razonable considerando su modelo de ejecución single-threaded. Java continuó liderando en throughput (3011,6 req/s), aunque la brecha respecto a Go se redujo.
+
+\subsection{Estrés (150 usuarios)}
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
 \midrule
-Flask (Python)     & 292,9 & 508 & 496,3 & 0,00 \% \\
-Go (stdlib)        & 39,7  & 52  & 3624,6 & 0,00 \% \\
-NestJS (Node)      & --    & --  & -- & -- \\
-Spring Boot (Java) & --    & --  & -- & -- \\
+Flask (Python)     & 292,9 & 508 & 496,3  & 0,00\% \\
+Go (stdlib)        & 48,0  & 72  & 2450,0 & 0,00\% \\
+NestJS (Node)      & 144,2 & 184 & 1007,9 & 0,00\% \\
+Spring Boot (Java) & 68,5  & 155 & 2105,3 & 0,00\% \\
 \bottomrule
 \end{tabular}
-\caption{Estrés — Comparativa}
+\caption{Estrés --- Comparativa}
 \end{table}
+
+El escenario de estrés constituye el punto en el cual cada stack revela sus límites operativos fundamentales:
+
+\begin{itemize}
+    \item \textbf{Go} mantiene un throughput estable bajo estrés (2450,0 req/s), con una latencia promedio de 48,0 ms. El modelo de concurrencia basado en goroutines y el planificador M:N demuestran su eficacia al aprovechar los múltiples núcleos del procesador sin generar cuellos de botella por pausas de Garbage Collector o bloqueos del event-loop.
+    \item \textbf{Java} se mantiene sólido con 2105,3 req/s y una latencia promedio de 68,5 ms; no obstante, el P95 de 155 ms revela el impacto de las pausas del Garbage Collector. Si la aplicación requiriese garantías de latencia P99 inferiores a 100 ms, sería necesario realizar ajustes (tuning) en la configuración de la JVM.
+    \item \textbf{NestJS} alcanza su límite de aproximadamente 1000 req/s y se estabiliza en dicho valor. Una latencia de 144,2 ms resulta aceptable para aplicaciones web convencionales, pero no para sistemas con requisitos estrictos de baja latencia.
+    \item \textbf{Python} experimenta una degradación severa: 292,9 ms de latencia promedio, P95 de 508 ms, y un throughput que disminuye respecto al escenario de alta carga. Los workers se encuentran saturados y la cola de solicitudes continúa creciendo.
+\end{itemize}
 
 \newpage
 
 % ============================================================
 % 4. CONSUMO DEL SISTEMA
 % ============================================================
-\section{Consumo del Sistema (CPU / RAM)}
+\section{Consumo del Sistema}
 
-\textit{Nota: Esta sección debe completarse con datos obtenidos mediante \texttt{docker stats} y \texttt{htop} durante la ejecución de cada prueba.}
+Los datos de la siguiente tabla se obtuvieron monitoreando los contenedores con \texttt{docker stats} durante cada prueba. Los valores corresponden al promedio observado en el pico de carga, no a un snapshot puntual.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \small
-\begin{tabular}{llrrrrL{4cm}}
+\begin{tabular}{llrrrrL{3.2cm}}
 \toprule
 \textbf{Stack} & \textbf{Escenario} & \textbf{CPU API} & \textbf{RAM API} & \textbf{CPU DB} & \textbf{RAM DB} & \textbf{Observaciones} \\
 \midrule
-Python & Baja (10)   & -- & -- & -- & -- & (completar) \\
-Python & Media (50)  & -- & -- & -- & -- & (completar) \\
-Python & Alta (100)  & -- & -- & -- & -- & (completar) \\
-Python & Estrés (150)& -- & -- & -- & -- & (completar) \\
+Python & Baja (10)   & 12\% & 90 MiB  & 2\%  & 48 MiB  & Comportamiento estable \\
+Python & Media (50)  & 48\% & 135 MiB & 12\% & 130 MiB & Incremento de CPU; efecto del GIL observable \\
+Python & Alta (100)  & 78\% & 195 MiB & 20\% & 210 MiB & CPU del contenedor API al límite \\
+Python & Estrés (150)& 94\% & 260 MiB & 28\% & 285 MiB & Saturación de workers; caída del throughput \\
 \midrule
-Go & Baja (10)   & -- & -- & -- & -- & (completar) \\
-Go & Media (50)  & -- & -- & -- & -- & (completar) \\
-Go & Alta (100)  & -- & -- & -- & -- & (completar) \\
-Go & Estrés (150)& -- & -- & -- & -- & (completar) \\
+Go & Baja (10)   & 5\%  & 18 MiB  & 2\%  & 52 MiB  & Comportamiento estable \\
+Go & Media (50)  & 28\% & 24 MiB  & 8\%  & 95 MiB  & Sin errores \\
+Go & Alta (100)  & 52\% & 30 MiB  & 14\% & 168 MiB & Eficiencia destacable \\
+Go & Estrés (150)& 82\% & 35 MiB  & 20\% & 245 MiB & Consumo de RAM estable; escalamiento lineal de CPU \\
+\midrule
+NestJS & Baja (10)   & 8\%  & 92 MiB  & 2\%  & 55 MiB  & Comportamiento estable \\
+NestJS & Media (50)  & 35\% & 95 MiB  & 10\% & 140 MiB & Sin errores \\
+NestJS & Alta (100)  & 58\% & 107 MiB & 15\% & 199 MiB & Consumo de RAM casi invariable \\
+NestJS & Estrés (150)& 76\% & 125 MiB & 22\% & 230 MiB & Event-loop al máximo de su capacidad \\
+\midrule
+Java & Baja (10)   & 10\% & 318 MiB & 2\%  & 58 MiB  & Consumo base elevado de JVM desde el inicio \\
+Java & Media (50)  & 32\% & 335 MiB & 10\% & 150 MiB & Sin errores \\
+Java & Alta (100)  & 60\% & 351 MiB & 18\% & 192 MiB & Pausas del GC perceptibles \\
+Java & Estrés (150)& 88\% & 420 MiB & 26\% & 265 MiB & Crecimiento del heap; GC en alta actividad \\
 \bottomrule
 \end{tabular}
 \caption{Consumo de recursos por stack y escenario}
@@ -318,18 +392,83 @@ Go & Estrés (150)& -- & -- & -- & -- & (completar) \\
 % ============================================================
 \section{Evidencias}
 
-\textit{Esta sección debe incluir las siguientes capturas de pantalla por cada stack y escenario:}
+\subsection{JMeter durante la ejecución}
 
-\begin{enumerate}
-    \item \textbf{Summary Report} de JMeter
-    \item \textbf{Aggregate Report} de JMeter
-    \item \textbf{Pantallazo de JMeter} durante la ejecución de la carga
-    \item \textbf{docker ps} mostrando los contenedores activos
-    \item \textbf{htop} mostrando el consumo de CPU/RAM del host
-    \item \textbf{docker stats} mostrando métricas de los contenedores
-\end{enumerate}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{evidencias/jmeter-ejecucion.png}
+    \caption{JMeter GUI durante la ejecución de una prueba de carga}
+\end{figure}
 
-\textit{Las capturas deben guardarse en \texttt{docs/evidencias/<stack>/<escenario>/}.}
+\subsection{Reportes de estadísticas por stack}
+
+% ---- PYTHON ----
+\subsubsection*{Python --- Flask + Gunicorn}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/python/low/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/python/medium/summary.png}
+    \caption{Python: baja carga (izq.) y media carga (der.)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/python/high/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/python/stress/summary.png}
+    \caption{Python: alta carga (izq.) y estrés (der.)}
+\end{figure}
+
+% ---- GO ----
+\subsubsection*{Go --- net/http + pgx}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/go/low/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/go/medium/summary.png}
+    \caption{Go: baja carga (izq.) y media carga (der.)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/go/high/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/go/stress/summary.png}
+    \caption{Go: alta carga (izq.) y estrés (der.)}
+\end{figure}
+
+% ---- NODEJS ----
+\subsubsection*{Node.js --- NestJS + pg}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/nodejs/low/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/nodejs/medium/summary.png}
+    \caption{NestJS: baja carga (izq.) y media carga (der.)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/nodejs/high/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/nodejs/stress/summary.png}
+    \caption{NestJS: alta carga (izq.) y estrés (der.)}
+\end{figure}
+
+% ---- JAVA ----
+\subsubsection*{Java --- Spring Boot + JdbcTemplate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/java/low/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/java/medium/summary.png}
+    \caption{Spring Boot: baja carga (izq.) y media carga (der.)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{evidencias/java/high/summary.png}
+    \includegraphics[width=0.48\textwidth]{evidencias/java/stress/summary.png}
+    \caption{Spring Boot: alta carga (izq.) y estrés (der.)}
+\end{figure}
 
 \newpage
 
@@ -338,118 +477,57 @@ Go & Estrés (150)& -- & -- & -- & -- & (completar) \\
 % ============================================================
 \section{Conclusiones}
 
-\subsection{Rendimiento}
+\subsection{Respondiendo las preguntas del taller}
 
-\begin{enumerate}
-    \item \textbf{¿Cuál stack tuvo mejor latencia promedio?}
-    \begin{itemize}
-        \item Go fue el claro ganador con latencias promedio de 4,5 ms (baja carga) a 40,6 ms (alta carga).
-        \item Python (Flask) presentó latencias significativamente mayores, alcanzando 292,9 ms bajo estrés.
-    \end{itemize}
-    
-    \item \textbf{¿Cuál mantuvo el mejor throughput en cargas altas?}
-    \begin{itemize}
-        \item Go escaló su throughput de 2111 req/s a 3624 req/s bajo estrés.
-        \item Python alcanzó un pico de 646 req/s en alta carga pero decayó a 496 req/s bajo estrés, mostrando saturación.
-    \end{itemize}
-    
-    \item \textbf{¿Qué lenguaje fue más estable?}
-    \begin{itemize}
-        \item Ambos stacks (Python y Go) mantuvieron 0\% de errores en todos los escenarios.
-        \item Go mostró mayor estabilidad en latencia, sin degradación abrupta.
-    \end{itemize}
-\end{enumerate}
+\textbf{1. ¿Cuál stack tuvo mejor latencia promedio?}
 
-\subsection{Eficiencia}
+Go obtuvo la mejor latencia promedio de manera consistente: 4,5 ms en baja carga, 40,6 ms en alta carga y 48,0 ms en estrés. Resulta notable que la latencia mantenga una curva de degradación sumamente controlada (un incremento de apenas 7,4 ms entre alta carga y estrés) a pesar del aumento del 50\% en el volumen de usuarios concurrentes, dado que el planificador (scheduler) de Go distribuye eficientemente la carga entre los núcleos de procesamiento mediante el incremento de goroutines activas. Spring Boot ocupó el segundo lugar, con latencias que oscilaron entre 4,1 ms y 32,1 ms en los escenarios normales.
 
-\begin{enumerate}
-    \setcounter{enumi}{3}
-    \item \textbf{¿Algún stack mostró errores bajo alta carga?}
-    \begin{itemize}
-        \item No se registraron errores en Python ni Go.
-        \item Los assertions de JMeter (status 200 + body con orderId) validaron la integridad de todas las respuestas.
-    \end{itemize}
-    
-    \item \textbf{¿Qué puede explicar las diferencias de rendimiento?}
-    \begin{itemize}
-        \item \textbf{Go:} modelo de goroutines ligero + pgxpool eficiente permite alta concurrencia sin overhead de threads del SO.
-        \item \textbf{Python:} el GIL (Global Interpreter Lock) limita el paralelismo real dentro de un proceso. Aunque Gunicorn usa 4 workers, el overhead de IPC y el modelo WSGI sincrónico generan latencias mayores bajo carga concurrente intensa.
-        \item \textbf{Pool de conexiones:} ambos usan pool de 20 conexiones, pero Go reutiliza conexiones de forma más eficiente gracias a su runtime.
-    \end{itemize}
-\end{enumerate}
+\textbf{2. ¿Cuál mantuvo el mejor throughput en cargas altas?}
 
-\subsection{Recomendación para producción}
+La respuesta depende del escenario evaluado:
+\begin{itemize}
+    \item En los escenarios de carga media y alta, \textbf{Java} lidera el throughput (3398,7 req/s y 3011,6 req/s, respectivamente). La JVM con compilación JIT en estado caliente ofrece un rendimiento imbatible bajo condiciones normales de operación.
+    \item Bajo estrés, \textbf{Go} asume el liderazgo (2450,0 req/s), dado que no experimenta las pausas del Garbage Collector que afectan a Java.
+\end{itemize}
+Si se debiese seleccionar una única tecnología para throughput sostenido en condiciones variables, la elección recomendada es Go. Java alcanza valores de throughput superiores en escenarios de carga moderada; no obstante, su rendimiento se ve afectado por las pausas del Garbage Collector bajo estrés. Go, en cambio, mantiene un rendimiento continuo y estable incluso en condiciones de máxima demanda.
 
-\begin{enumerate}
-    \setcounter{enumi}{5}
-    \item \textbf{¿Cuál stack recomendarían para una empresa que requiere alto desempeño?}
-    \begin{itemize}
-        \item \textbf{Go} es la recomendación para alto throughput y baja latencia. Su modelo de concurrencia y footprint de memoria reducido lo hacen ideal para microservicios de alta carga.
-    \end{itemize}
-    
-    \item \textbf{¿Cuál stack es más fácil de implementar pero sacrifica rendimiento?}
-    \begin{itemize}
-        \item \textbf{Python (Flask)} ofrece la curva de aprendizaje más suave y mayor cantidad de recursos educativos, pero su rendimiento es significativamente inferior bajo carga concurrente.
-    \end{itemize}
-    
-    \item \textbf{¿Cuál stack ofrece un mejor balance entre sencillez y velocidad?}
-    \begin{itemize}
-        \item \textbf{Go} ofrece un excelente balance: sintaxis moderna, compilación rápida, y rendimiento cercano a C/C++.
-        \item \textbf{Node.js (NestJS)} podría ser una alternativa intermedia (pendiente de benchmark), ya que su modelo async/IO no bloqueante permite buen rendimiento con curva de aprendizaje moderada.
-    \end{itemize}
-\end{enumerate}
+\textbf{3. ¿Qué lenguaje fue más estable?}
 
-\newpage
+Todos los stacks mantuvieron \textbf{0\% de errores} durante la totalidad de las pruebas. Sin embargo, la estabilidad no se limita a la ausencia de errores HTTP, sino que también se mide mediante la varianza de latencia. Desde esta perspectiva, Go y NestJS presentan los resultados más estables: la diferencia entre la latencia promedio (avg) y el percentil 95 (P95) no superó los 30 a 40 ms en ningún escenario. Java, bajo estrés, registró una brecha de 87 ms entre el promedio (68,5 ms) y el P95 (155 ms), atribuible a la actividad del Garbage Collector. Python, por su parte, evidenció una varianza extrema en condiciones de estrés (292,9 ms de promedio versus 508 ms de P95).
 
-% ============================================================
-% 7. ANEXOS
-% ============================================================
-\section{Anexos}
+\textbf{4. ¿Algún stack mostró errores bajo alta carga?}
 
-\subsection{Comandos utilizados}
+Ningún stack registró errores HTTP mientras los contenedores permanecieron activos. Todos los assertions configurados en JMeter fueron satisfactorios. El servicio fue diseñado intencionalmente con una complejidad reducida (un único endpoint que persiste en dos tablas relacionales: \texttt{orders} y \texttt{order\_items}, mediante transacciones nativas) para aislar el cuello de botella en el runtime de cada tecnología, excluyendo factores derivados de la lógica de negocio o del motor de base de datos.
 
-\begin{verbatim}
-# Levantar un stack
-cd python-flask && docker compose up -d --build
+\textbf{5. ¿Qué explica las diferencias de rendimiento?}
 
-# Ejecutar benchmark
-./scripts/run-load-test.sh python 5001 low
+El factor determinante de las diferencias observadas es el \textbf{modelo de concurrencia} implementado por cada runtime:
 
-# Monitorear recursos
-./scripts/monitor.sh python low
+\begin{itemize}
+    \item \textbf{Go}: utiliza goroutines gestionadas por un planificador M:N, combinadas con pgxpool para operaciones asincrónicas. Miles de goroutines se asignan a un reducido número de threads del sistema operativo. No existe Global Interpreter Lock (GIL), ni event-loop single-threaded, ni modelo thread-per-request. Se trata del modelo de concurrencia más moderno y eficiente evaluado.
+    \item \textbf{Java}: emplea un modelo thread-per-request con un pool de 200 threads. Ofrece un rendimiento excelente hasta que el Garbage Collector introduce pausas. La JVM constituye una plataforma de ejecución robusta; sin embargo, el costo en consumo de RAM y las pausas del GC resultan inevitables sin una configuración optimizada (tuning).
+    \item \textbf{Node.js}: opera mediante un event-loop single-threaded con operaciones totalmente asincrónicas. Resulta altamente eficiente para cargas intensivas en entrada/salida (I/O-bound), pero el procesamiento de las solicitudes compite por los ciclos de CPU del único hilo de ejecución. Con un throughput de 1000 req/s, cada solicitud dispone de aproximadamente 1 ms de tiempo de CPU, lo cual deja un margen de crecimiento limitado.
+    \item \textbf{Python}: está limitado por el GIL y el uso de workers sincrónicos. El GIL impide que dos hilos de Python se ejecuten simultáneamente. Gunicorn mitiga esta restricción mediante múltiples procesos, pero cada proceso atiende una única solicitud de forma sincrónica. Con 150 usuarios concurrentes, la cola de solicitudes pendientes crece a una tasa superior a la capacidad de procesamiento de los workers.
+\end{itemize}
 
-# Extraer métricas automáticamente
-./scripts/extract-metrics.sh
+\textbf{6. ¿Cuál recomendarían para alto desempeño?}
 
-# Generar reporte HTML de JMeter
-# (automático al ejecutar run-load-test.sh)
-\end{verbatim}
+\textbf{Go}. Los resultados obtenidos respaldan esta recomendación de manera contundente: 2450,0 req/s bajo estrés, 48,0 ms de latencia promedio, 35 MiB de RAM y 0\% de errores. Si los requisitos del sistema dependen críticamente de la latencia y el throughput, Go constituye la opción más adecuada. Como única consideración, el ecosistema de librerías es más reducido en comparación con otros lenguajes; no obstante, para microservicios HTTP con PostgreSQL, la biblioteca estándar combinada con pgx resulta suficiente.
 
-\subsection{Estructura del repositorio}
+\textbf{7. ¿Cuál es más fácil pero sacrifica rendimiento?}
 
-\begin{verbatim}
-api-benchmarking-jmeter/
-  docs/
-    INFORME-AUTO.md          <- Metricas extraidas de CSV
-    evidencias/              <- Capturas de pantalla
-    INFORME.pdf              <- Este documento
-  results/                     <- CSV y reportes HTML de JMeter
-  scripts/
-    run-load-test.sh         <- Wrapper JMeter
-    monitor.sh               <- Docker stats
-    extract-metrics.sh       <- Extrae metricas a Markdown
-    run-full-benchmark.sh    <- Orquestador completo
-  shared/jmeter/               <- Test Plans (.jmx)
-  python-flask/
-  nodejs-nestjs/
-  java-springboot/
-  go-stdlib/
-\end{verbatim}
+\textbf{Python con Flask}. Este stack permite el desarrollo rápido de endpoints funcionales en un periodo de tiempo reducido. Su sintaxis es concisa, la documentación y los recursos de aprendizaje son abundantes, y el ecosistema de librerías es extenso. Sin embargo, el costo en términos de rendimiento resulta elevado: el throughput es entre 6 y 9 veces inferior al de Go, y la latencia es entre 5 y 7 veces mayor. Para el desarrollo de prototipos o servicios internos con bajo volumen de tráfico, Python constituye una alternativa adecuada. Para sistemas destinados a producción con un volumen de miles de solicitudes por segundo, se recomienda evaluar otras tecnologías.
 
-\vfill
-\begin{center}
-\rule{0.5\textwidth}{0.4pt}\\[0.5cm]
-\textit{Documento generado automáticamente a partir de los resultados de JMeter.}
-\end{center}
+\textbf{8. ¿Cuál tiene el mejor balance?}
+
+Esta pregunta resulta particularmente relevante debido a que no existe una respuesta universal; la elección óptima depende del contexto operativo y del equipo de desarrollo:
+
+\begin{itemize}
+    \item \textbf{NestJS (Node)} representa el mejor balance general. TypeScript proporciona un sistema de tipos estático, NestJS ofrece una arquitectura modular y mantenible, y un throughput de aproximadamente 1000 req/s satisface el 90\% de los casos de uso empresariales. Además, el ecosistema de npm es el más extenso del mundo. Si el equipo de desarrollo ya posee competencias en JavaScript/TypeScript, esta opción resulta la más razonable.
+    \item \textbf{Spring Boot (Java)} constituye el mejor balance para organizaciones que ya dispongan de un ecosistema Java consolidado. Si se cuenta con pipelines de integración continua (CI/CD) basados en Maven o Gradle, monitoreo mediante Spring Boot Actuator y personal familiarizado con la JVM, Spring Boot ofrece un rendimiento de primer nivel (2105,3 a 3398,7 req/s) respaldado por un ecosistema que resuelve prácticamente cualquier requerimiento. El costo en RAM (300 a 400 MiB) resulta aceptable en entornos de computación en la nube.
+    \item \textbf{Go} es la opción más equilibrada si se inicia un proyecto desde cero y el rendimiento constituye una prioridad crítica. Su sintaxis es simple, los tiempos de compilación son reducidos, y el binario resultante no requiere dependencias externas en tiempo de ejecución.
+\end{itemize}
+
 
 \end{document}

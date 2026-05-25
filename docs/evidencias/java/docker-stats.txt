@@ -1,0 +1,12 @@
+--- snapshot 1 ---
+CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O       PIDS
+d69d01d5d49c   api-java   4.04%     208.9MiB / 7.56GiB   2.70%     4.89kB / 126B   64.9MB / 0B     42
+2f21b5b62a6e   db-java    2.72%     152.9MiB / 7.56GiB   1.98%     6.63kB / 126B   222MB / 152MB   6
+--- snapshot 2 ---
+CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O       PIDS
+d69d01d5d49c   api-java   0.14%     208.9MiB / 7.56GiB   2.70%     4.89kB / 126B   64.9MB / 0B     42
+2f21b5b62a6e   db-java    3.17%     152.8MiB / 7.56GiB   1.97%     6.84kB / 126B   222MB / 152MB   6
+--- snapshot 3 ---
+CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O       PIDS
+d69d01d5d49c   api-java   0.12%     209MiB / 7.56GiB     2.70%     5.16kB / 126B   64.9MB / 0B     42
+2f21b5b62a6e   db-java    0.01%     152.5MiB / 7.56GiB   1.97%     6.84kB / 126B   222MB / 152MB   6

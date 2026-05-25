@@ -1,0 +1,12 @@
+--- snapshot 1 ---
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O         PIDS
+18742c7eccba   api-go    0.00%     12.05MiB / 7.56GiB   0.16%     7.17kB / 965B   10.1MB / 0B       9
+feefcc4d9834   db-go     3.12%     33.27MiB / 7.56GiB   0.43%     13kB / 1.21kB   12.5MB / 52.5MB   7
+--- snapshot 2 ---
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O         PIDS
+18742c7eccba   api-go    0.00%     12.05MiB / 7.56GiB   0.16%     7.17kB / 965B     10.1MB / 0B       9
+feefcc4d9834   db-go     3.52%     33.24MiB / 7.56GiB   0.43%     13.4kB / 1.21kB   12.5MB / 52.5MB   7
+--- snapshot 3 ---
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT    MEM %     NET I/O           BLOCK I/O         PIDS
+18742c7eccba   api-go    0.00%     12.04MiB / 7.56GiB   0.16%     7.51kB / 1.03kB   10.1MB / 0B       9
+feefcc4d9834   db-go     0.04%     34.91MiB / 7.56GiB   0.45%     13.5kB / 1.27kB   12.5MB / 52.9MB   7

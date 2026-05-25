@@ -1,0 +1,3 @@
+NAMES        IMAGE                STATUS                    PORTS
+api-nodejs   nodejs-nestjs-api    Up 9 seconds (healthy)    0.0.0.0:5002->5002/tcp, [::]:5002->5002/tcp
+db-nodejs    postgres:16-alpine   Up 14 seconds (healthy)   0.0.0.0:5434->5432/tcp, [::]:5434->5432/tcp

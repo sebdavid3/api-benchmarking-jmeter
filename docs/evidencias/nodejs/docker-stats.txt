@@ -1,0 +1,12 @@
+--- snapshot 1 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O         PIDS
+5627c9316ed5   api-nodejs   7.27%     87.35MiB / 7.56GiB   1.13%     5.88kB / 126B   73.4MB / 0B       7
+5177f457d1f4   db-nodejs    0.06%     22.07MiB / 7.56GiB   0.29%     12.2kB / 126B   28.7kB / 52.5MB   6
+--- snapshot 2 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O         PIDS
+5627c9316ed5   api-nodejs   2.90%     87.41MiB / 7.56GiB   1.13%     6.16kB / 126B   73.4MB / 0B       7
+5177f457d1f4   db-nodejs    0.03%     22.07MiB / 7.56GiB   0.29%     12.4kB / 126B   28.7kB / 52.5MB   6
+--- snapshot 3 ---
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O         BLOCK I/O         PIDS
+5627c9316ed5   api-nodejs   0.00%     87.33MiB / 7.56GiB   1.13%     6.36kB / 126B   73.4MB / 0B       7
+5177f457d1f4   db-nodejs    0.04%     23.74MiB / 7.56GiB   0.31%     12.4kB / 126B   28.7kB / 52.9MB   6
