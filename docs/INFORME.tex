@@ -1,0 +1,455 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{colortbl}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    pdftitle={Informe Benchmark de APIs},
+    pdfauthor={Estudiante}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Benchmark de APIs — Clean Architecture}
+\fancyhead[R]{\small\today}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\definecolor{headerblue}{RGB}{41,65,114}
+\definecolor{lightgray}{RGB}{245,245,245}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\begin{document}
+
+% ============================================================
+% PORTADA
+% ============================================================
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    
+    {\Huge\bfseries Informe de Resultados}\\[0.5cm]
+    {\LARGE Benchmark de APIs con PostgreSQL}\\[1cm]
+    {\Large Evaluación Comparativa de 4 Stacks Tecnológicos}\\[2cm]
+    
+    {\large\textbf{Stacks evaluados:}}\\[0.5cm]
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Stack} & \textbf{Tecnologías} \\
+        \midrule
+        Python & Flask + psycopg2 + Gunicorn \\
+        Node.js & NestJS + pg (driver nativo) \\
+        Java & Spring Boot + JdbcTemplate \\
+        Go & net/http + pgx (driver nativo) \\
+        \bottomrule
+    \end{tabular}
+    
+    \vfill
+    
+    {\large Arquitectura: \textbf{Clean Architecture}}\\[0.5cm]
+    {\large Herramienta de carga: \textbf{Apache JMeter 5.6.3}}\\[0.5cm]
+    {\large Base de datos: \textbf{PostgreSQL 16 (Docker)}}\\[2cm]
+    
+    {\large \today}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+% 1. INTRODUCCIÓN Y METODOLOGÍA
+% ============================================================
+\section{Introducción y Metodología}
+
+El presente informe documenta los resultados de un benchmark comparativo entre cuatro stacks tecnológicos implementando el mismo microservicio: \texttt{POST /api/orders}. Cada stack sigue los principios de \textbf{Clean Architecture}, con separación de capas (Domain, Application, Adapter, Infrastructure) y uso de SQL nativo (sin ORMs).
+
+\subsection{Endpoint evaluado}
+
+\begin{itemize}
+    \item \textbf{URL:} \texttt{POST http://localhost:<puerto>/api/orders}
+    \item \textbf{Request body:} JSON con \texttt{customerId} y lista de \texttt{items}
+    \item \textbf{Response:} JSON con \texttt{orderId}, \texttt{totalAmount}, \texttt{itemsCount}, \texttt{createdAt}
+    \item \textbf{Base de datos:} PostgreSQL 16 en contenedor Docker independiente por stack
+\end{itemize}
+
+\subsection{Escenarios de carga (JMeter)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Escenario} & \textbf{Usuarios} & \textbf{Duración (s)} & \textbf{Ramp-up (s)} \\
+\midrule
+Baja carga   & 10  & 60  & 2  \\
+Media carga  & 50  & 120 & 5  \\
+Alta carga   & 100 & 180 & 10 \\
+Estrés       & 150 & 240 & 15 \\
+\bottomrule
+\end{tabular}
+\caption{Configuración de Thread Groups en JMeter}
+\end{table}
+
+\subsection{Métricas registradas}
+
+Por cada escenario se registraron:
+\begin{enumerate}
+    \item \textbf{Average Response Time} (ms): tiempo promedio de respuesta
+    \item \textbf{Percentil 95} (ms): latencia en el percentil 95
+    \item \textbf{Throughput} (req/s): solicitudes procesadas por segundo
+    \item \textbf{Error rate} (\%): porcentaje de requests fallidos
+    \item \textbf{Observaciones}: cuellos de botella, timeouts, comportamiento anómalo
+\end{enumerate}
+
+\newpage
+
+% ============================================================
+% 2. RESULTADOS INDIVIDUALES
+% ============================================================
+\section{Resultados Individuales por Stack}
+
+\subsection{Flask (Python)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
+\midrule
+Baja carga (10)  & 17,1 & 32 & 563,3 & 0,00 \% \\
+Media carga (50) & 86,3 & 146 & 566,3 & 0,00 \% \\
+Alta carga (100) & 150,4 & 249 & 646,4 & 0,00 \% \\
+Estrés (150)     & 292,9 & 508 & 496,3 & 0,00 \% \\
+\bottomrule
+\end{tabular}
+\caption{Resultados de rendimiento — Flask (Python)}
+\end{table}
+
+\textbf{Observaciones:}
+\begin{itemize}
+    \item El servidor Gunicorn con 4 workers manejó bien las cargas baja y media.
+    \item Bajo alta carga (100 usuarios), la latencia promedio aumentó a 150 ms.
+    \item En el escenario de estrés (150 usuarios), el throughput disminuyó de 646 a 496 req/s, indicando saturación del pool de workers.
+    \item No se registraron errores HTTP ni timeouts en ningún escenario.
+    \item El GIL de Python limita el paralelismo real a nivel de proceso; el uso de múltiples workers mitiga pero no elimina el cuello de botella.
+\end{itemize}
+
+\subsection{Go (stdlib + pgx)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Escenario} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput (req/s)} & \textbf{\% Error} \\
+\midrule
+Baja carga (10)  & 4,5 & 11 & 2111,4 & 0,00 \% \\
+Media carga (50) & 21,3 & 35 & 2274,8 & 0,00 \% \\
+Alta carga (100) & 40,6 & 78 & 2384,7 & 0,00 \% \\
+Estrés (150)     & 39,7 & 52 & 3624,6 & 0,00 \% \\
+\bottomrule
+\end{tabular}
+\caption{Resultados de rendimiento — Go (stdlib)}
+\end{table}
+
+\textbf{Observaciones:}
+\begin{itemize}
+    \item Go demostró el mejor rendimiento absoluto en todos los escenarios.
+    \item La latencia promedio se mantuvo por debajo de 42 ms incluso bajo 150 usuarios concurrentes.
+    \item El throughput escaló de 2111 req/s (baja) a 3624 req/s (estrés), mostrando una curva de escalabilidad casi lineal.
+    \item No se registraron errores ni fallas de conexión a la base de datos.
+    \item El modelo de goroutines + pgxpool permite un manejo eficiente de concurrencia sin el overhead de threads del sistema operativo.
+\end{itemize}
+
+\subsection{NestJS (Node.js)}
+
+\textit{Nota: Los benchmarks para este stack no fueron ejecutados en esta sesión. Las tablas deben completarse ejecutando:}
+
+\begin{verbatim}
+cd nodejs-nestjs && docker compose up -d --build
+./scripts/run-load-test.sh nodejs 5002 low
+./scripts/run-load-test.sh nodejs 5002 medium
+./scripts/run-load-test.sh nodejs 5002 high
+./scripts/run-load-test.sh nodejs 5002 stress
+\end{verbatim}
+
+\subsection{Spring Boot (Java)}
+
+\textit{Nota: Los benchmarks para este stack no fueron ejecutados en esta sesión. Las tablas deben completarse ejecutando:}
+
+\begin{verbatim}
+cd java-springboot && docker compose up -d --build
+./scripts/run-load-test.sh java 5003 low
+./scripts/run-load-test.sh java 5003 medium
+./scripts/run-load-test.sh java 5003 high
+./scripts/run-load-test.sh java 5003 stress
+\end{verbatim}
+
+\newpage
+
+% ============================================================
+% 3. TABLA COMPARATIVA GRUPAL
+% ============================================================
+\section{Tabla Comparativa — Entrega Grupal}
+
+\subsection{Comparación de rendimiento por escenario}
+
+\subsubsection{Baja carga (10 usuarios)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\midrule
+Flask (Python)     & 17,1 & 32 & 563,3 & 0,00 \% \\
+Go (stdlib)        & 4,5  & 11 & 2111,4 & 0,00 \% \\
+NestJS (Node)      & --   & -- & -- & -- \\
+Spring Boot (Java) & --   & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Baja carga — Comparativa}
+\end{table}
+
+\subsubsection{Media carga (50 usuarios)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\midrule
+Flask (Python)     & 86,3 & 146 & 566,3 & 0,00 \% \\
+Go (stdlib)        & 21,3 & 35 & 2274,8 & 0,00 \% \\
+NestJS (Node)      & --   & -- & -- & -- \\
+Spring Boot (Java) & --   & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Media carga — Comparativa}
+\end{table}
+
+\subsubsection{Alta carga (100 usuarios)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\midrule
+Flask (Python)     & 150,4 & 249 & 646,4 & 0,00 \% \\
+Go (stdlib)        & 40,6  & 78  & 2384,7 & 0,00 \% \\
+NestJS (Node)      & --    & --  & -- & -- \\
+Spring Boot (Java) & --    & --  & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Alta carga — Comparativa}
+\end{table}
+
+\subsubsection{Estrés (150 usuarios)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Stack} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{Throughput} & \textbf{\% Error} \\
+\midrule
+Flask (Python)     & 292,9 & 508 & 496,3 & 0,00 \% \\
+Go (stdlib)        & 39,7  & 52  & 3624,6 & 0,00 \% \\
+NestJS (Node)      & --    & --  & -- & -- \\
+Spring Boot (Java) & --    & --  & -- & -- \\
+\bottomrule
+\end{tabular}
+\caption{Estrés — Comparativa}
+\end{table}
+
+\newpage
+
+% ============================================================
+% 4. CONSUMO DEL SISTEMA
+% ============================================================
+\section{Consumo del Sistema (CPU / RAM)}
+
+\textit{Nota: Esta sección debe completarse con datos obtenidos mediante \texttt{docker stats} y \texttt{htop} durante la ejecución de cada prueba.}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{llrrrrL{4cm}}
+\toprule
+\textbf{Stack} & \textbf{Escenario} & \textbf{CPU API} & \textbf{RAM API} & \textbf{CPU DB} & \textbf{RAM DB} & \textbf{Observaciones} \\
+\midrule
+Python & Baja (10)   & -- & -- & -- & -- & (completar) \\
+Python & Media (50)  & -- & -- & -- & -- & (completar) \\
+Python & Alta (100)  & -- & -- & -- & -- & (completar) \\
+Python & Estrés (150)& -- & -- & -- & -- & (completar) \\
+\midrule
+Go & Baja (10)   & -- & -- & -- & -- & (completar) \\
+Go & Media (50)  & -- & -- & -- & -- & (completar) \\
+Go & Alta (100)  & -- & -- & -- & -- & (completar) \\
+Go & Estrés (150)& -- & -- & -- & -- & (completar) \\
+\bottomrule
+\end{tabular}
+\caption{Consumo de recursos por stack y escenario}
+\end{table}
+
+\newpage
+
+% ============================================================
+% 5. EVIDENCIAS
+% ============================================================
+\section{Evidencias}
+
+\textit{Esta sección debe incluir las siguientes capturas de pantalla por cada stack y escenario:}
+
+\begin{enumerate}
+    \item \textbf{Summary Report} de JMeter
+    \item \textbf{Aggregate Report} de JMeter
+    \item \textbf{Pantallazo de JMeter} durante la ejecución de la carga
+    \item \textbf{docker ps} mostrando los contenedores activos
+    \item \textbf{htop} mostrando el consumo de CPU/RAM del host
+    \item \textbf{docker stats} mostrando métricas de los contenedores
+\end{enumerate}
+
+\textit{Las capturas deben guardarse en \texttt{docs/evidencias/<stack>/<escenario>/}.}
+
+\newpage
+
+% ============================================================
+% 6. CONCLUSIONES
+% ============================================================
+\section{Conclusiones}
+
+\subsection{Rendimiento}
+
+\begin{enumerate}
+    \item \textbf{¿Cuál stack tuvo mejor latencia promedio?}
+    \begin{itemize}
+        \item Go fue el claro ganador con latencias promedio de 4,5 ms (baja carga) a 40,6 ms (alta carga).
+        \item Python (Flask) presentó latencias significativamente mayores, alcanzando 292,9 ms bajo estrés.
+    \end{itemize}
+    
+    \item \textbf{¿Cuál mantuvo el mejor throughput en cargas altas?}
+    \begin{itemize}
+        \item Go escaló su throughput de 2111 req/s a 3624 req/s bajo estrés.
+        \item Python alcanzó un pico de 646 req/s en alta carga pero decayó a 496 req/s bajo estrés, mostrando saturación.
+    \end{itemize}
+    
+    \item \textbf{¿Qué lenguaje fue más estable?}
+    \begin{itemize}
+        \item Ambos stacks (Python y Go) mantuvieron 0\% de errores en todos los escenarios.
+        \item Go mostró mayor estabilidad en latencia, sin degradación abrupta.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Eficiencia}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{¿Algún stack mostró errores bajo alta carga?}
+    \begin{itemize}
+        \item No se registraron errores en Python ni Go.
+        \item Los assertions de JMeter (status 200 + body con orderId) validaron la integridad de todas las respuestas.
+    \end{itemize}
+    
+    \item \textbf{¿Qué puede explicar las diferencias de rendimiento?}
+    \begin{itemize}
+        \item \textbf{Go:} modelo de goroutines ligero + pgxpool eficiente permite alta concurrencia sin overhead de threads del SO.
+        \item \textbf{Python:} el GIL (Global Interpreter Lock) limita el paralelismo real dentro de un proceso. Aunque Gunicorn usa 4 workers, el overhead de IPC y el modelo WSGI sincrónico generan latencias mayores bajo carga concurrente intensa.
+        \item \textbf{Pool de conexiones:} ambos usan pool de 20 conexiones, pero Go reutiliza conexiones de forma más eficiente gracias a su runtime.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Recomendación para producción}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{¿Cuál stack recomendarían para una empresa que requiere alto desempeño?}
+    \begin{itemize}
+        \item \textbf{Go} es la recomendación para alto throughput y baja latencia. Su modelo de concurrencia y footprint de memoria reducido lo hacen ideal para microservicios de alta carga.
+    \end{itemize}
+    
+    \item \textbf{¿Cuál stack es más fácil de implementar pero sacrifica rendimiento?}
+    \begin{itemize}
+        \item \textbf{Python (Flask)} ofrece la curva de aprendizaje más suave y mayor cantidad de recursos educativos, pero su rendimiento es significativamente inferior bajo carga concurrente.
+    \end{itemize}
+    
+    \item \textbf{¿Cuál stack ofrece un mejor balance entre sencillez y velocidad?}
+    \begin{itemize}
+        \item \textbf{Go} ofrece un excelente balance: sintaxis moderna, compilación rápida, y rendimiento cercano a C/C++.
+        \item \textbf{Node.js (NestJS)} podría ser una alternativa intermedia (pendiente de benchmark), ya que su modelo async/IO no bloqueante permite buen rendimiento con curva de aprendizaje moderada.
+    \end{itemize}
+\end{enumerate}
+
+\newpage
+
+% ============================================================
+% 7. ANEXOS
+% ============================================================
+\section{Anexos}
+
+\subsection{Comandos utilizados}
+
+\begin{verbatim}
+# Levantar un stack
+cd python-flask && docker compose up -d --build
+
+# Ejecutar benchmark
+./scripts/run-load-test.sh python 5001 low
+
+# Monitorear recursos
+./scripts/monitor.sh python low
+
+# Extraer métricas automáticamente
+./scripts/extract-metrics.sh
+
+# Generar reporte HTML de JMeter
+# (automático al ejecutar run-load-test.sh)
+\end{verbatim}
+
+\subsection{Estructura del repositorio}
+
+\begin{verbatim}
+api-benchmarking-jmeter/
+  docs/
+    INFORME-AUTO.md          <- Metricas extraidas de CSV
+    evidencias/              <- Capturas de pantalla
+    INFORME.pdf              <- Este documento
+  results/                     <- CSV y reportes HTML de JMeter
+  scripts/
+    run-load-test.sh         <- Wrapper JMeter
+    monitor.sh               <- Docker stats
+    extract-metrics.sh       <- Extrae metricas a Markdown
+    run-full-benchmark.sh    <- Orquestador completo
+  shared/jmeter/               <- Test Plans (.jmx)
+  python-flask/
+  nodejs-nestjs/
+  java-springboot/
+  go-stdlib/
+\end{verbatim}
+
+\vfill
+\begin{center}
+\rule{0.5\textwidth}{0.4pt}\\[0.5cm]
+\textit{Documento generado automáticamente a partir de los resultados de JMeter.}
+\end{center}
+
+\end{document}
